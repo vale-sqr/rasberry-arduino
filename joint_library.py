@@ -1,4 +1,4 @@
-joint_commands = {'neck__longitudinal': {'up_full': 0, 'up_slight': 45, 'forward': 90, 'down_slight': 135, 'down_full': 180}, 
+joint_commands = {'neck_longitudinal': {'up_full': 0, 'up_slight': 45, 'forward': 90, 'down_slight': 135, 'down_full': 180}, 
 'neck_turn': {'left_full': 0, 'left_slight': 45, 'neutral': 90, 'right_slight': 135, 'right_full': 180},
 'neck_tilt': {'left_full': 0, 'left_slight': 45, 'neutral': 90, 'right_slight': 135, 'right_full': 180},
 'shoulder_left_longitudinal_rise': {'up': 0, 'forward_up': 30, 'forward': 60, 'forward_down': 90, 'down': 120, 'backward_down': 150, 'backward_up': 180},
