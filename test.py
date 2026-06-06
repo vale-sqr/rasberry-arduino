@@ -26,31 +26,41 @@ try:
         print("Write commands in [joint]: [move]; [joint]: [move]; format")
         command = input("Movement: ")
         # shoulder_left_side_rise: up; elbow_left: full_open
+        if command[-1] == ";"
+            command = command[:-1]
+        
         commands = command.split("; ")
         # commands = [joint: move, joint: move]
 
         for joint in commands:
             # joint = [joint, move]
-            joint_command = joint.split(": ")
-            joint_name = joint_command[0]
-            move_name = joint_command[1]
-            try:
-                joint_moves = joint_commands[joint_name]
-                # joint_moves = {move: degree, move: degree, move: degree, move: degree}
-                try: 
-                    angle = joint_moves[move_name]
-                    # angle = degree
-                except:
-                    raise Exception(f"{move_name} is not part of {joint_name} move library")
-            except: 
-                raise Exception(f"{joint_name} is not one of the available joints")
-            else:
-                arduino.write(f"{joint_name}:{angle}\n".encode())
-                print(f"Sent: {joint_name}: {joint_move}")
-                
-            
+            joint_name, move_name = joint.split(": ")
 
-        
+            try:
+                angle = joint_command[joint_name][joint_move]
+                parts.append(f"{joint_name}:{angle}")
+            except:
+                raise Exception(f"Unknown: {joint_name}: {move_name}")
+            finally: 
+                 message = ",".join(parts) + "\n"
+                arduino.write(message.encode())
+
+
+
+
+            # try:
+            #     joint_moves = joint_commands[joint_name]
+            #     # joint_moves = {move: degree, move: degree, move: degree, move: degree}
+            #     try: 
+            #         angle = joint_moves[move_name]
+            #         # angle = degree
+            #     except:
+            #         raise Exception(f"{move_name} is not part of {joint_name} move library")
+            # except: 
+            #     raise Exception(f"{joint_name} is not one of the available joints")
+            # else:
+            #     arduino.write(f"{joint_name}:{angle}\n".encode())
+            #     print(f"Sent: {joint_name}: {joint_move}")
         
         # key = get_key().lower()
         # if key in ('q', '\x03'):  # \x03 is Ctrl+C in raw mode
