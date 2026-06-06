@@ -3,72 +3,116 @@ import tty
 import sys
 import termios
 import signal
-from joint_library import joint_commands
 
-arduino = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+joint_commands = {
+    'neck_nod': 
+        {
+            'up': 0, 
+            'up_soft': 45, 
+            'forward': 90, 
+            'down_soft': 135, 
+            'down': 180
+        }, 
+    'neck_turn': 
+        {
+            'left': 0, 
+            'left_soft': 45, 
+            'neutral': 90, 
+            'right_soft': 135, 
+            'right': 180
+        },
+    'neck_roll': 
+        {
+            left': 0, 
+            'left_soft': 45, 
+            'neutral': 90, 
+            'right_soft': 135, 
+            'right': 180
+        },
+    'shoulder_l_reach': 
+        {
+            'up': 0, 
+            'forward_raised': 45, 
+            'forward': 90, 
+            'forward_lowered': 135, 
+            'down': 180,
+        },
+    'shoulder_l_lift': 
+        {
+            'down': 0, 
+            'lowered': 45, 
+            'side': 90, 
+            'raised': 135, 
+            'up': 180
+        },
+    'shoulder_r_reach': 
+        {
+            'up': 0, 
+            'forward_raised': 45, 
+            'forward': 90, 
+            'forward_lowered': 135, 
+            'down': 180,
+        },
+    'shoulder_r_lift': 
+        {
+            'down': 0, 
+            'lowered': 45, 
+            'side': 90, 
+            'raised': 135, 
+            'up': 180
+        },
+    'elbow_l': 
+        {
+            'open': 0, 
+            'open_slight': 45, 
+            'right_angle': 90, 
+            'bent': 135, 
+            'closed': 180
+        },
+    'elbow_r': 
+        {
+            'open': 0, 
+            'open_slight': 45, 
+            'right_angle': 90, 
+            'bent': 135, 
+            'closed': 180
+        }
+}
 
-def get_key():
-    fd = sys.stdin.fileno()
-    old = termios.tcgetattr(fd)
-    try:
-        tty.setraw(fd)
-        key = sys.stdin.read(1)
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old)  # Always restore terminal
-    return key
+arduino = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
 
-#print("Controls: A/D = Servo1, W/S = Servo2, C = Center, Q or ^C = Quit")
 
 # library joint: {move: degree}
 
 try:
     while True:
-        print("Write commands in [joint]: [move]; [joint]: [move]; format")
+        print("Write commands in [joint]: '[move]; [joint]: [move]; format'")
         command = input("Movement: ")
         # shoulder_left_side_rise: up; elbow_left: full_open
-        if command[-1] == ";"
+        if command[-1] == ";":
             command = command[:-1]
+        
         
         commands = command.split("; ")
         # commands = [joint: move, joint: move]
+
+        parts = []
 
         for joint in commands:
             # joint = [joint, move]
             joint_name, move_name = joint.split(": ")
 
             try:
-                angle = joint_command[joint_name][joint_move]
+                angle = joint_commands[joint_name][move_name]
                 parts.append(f"{joint_name}:{angle}")
+                print(parts)
             except:
                 raise Exception(f"Unknown: {joint_name}: {move_name}")
             finally: 
-                 message = ",".join(parts) + "\n"
+                message = ",".join(parts) + "\n"
                 arduino.write(message.encode())
 
 
-
-
-            # try:
-            #     joint_moves = joint_commands[joint_name]
-            #     # joint_moves = {move: degree, move: degree, move: degree, move: degree}
-            #     try: 
-            #         angle = joint_moves[move_name]
-            #         # angle = degree
-            #     except:
-            #         raise Exception(f"{move_name} is not part of {joint_name} move library")
-            # except: 
-            #     raise Exception(f"{joint_name} is not one of the available joints")
-            # else:
-            #     arduino.write(f"{joint_name}:{angle}\n".encode())
-            #     print(f"Sent: {joint_name}: {joint_move}")
-        
-        # key = get_key().lower()
-        # if key in ('q', '\x03'):  # \x03 is Ctrl+C in raw mode
-        #     break
-        # if key in ('a', 'd', 'w', 's', 'c'):
-        #     arduino.write(key.encode())
-        #     print(f"Sent: {key}")
-        
 finally:
     arduino.close()
     print("Disconnected.")
