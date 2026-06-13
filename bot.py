@@ -27,16 +27,19 @@ async def on_message(message):
   if message.author in ai_authors:
     matches - re.findall(r'\*([^*]+)\*', message.content)
     for expression in matches:
-      response = ollama.chat(
-        model = "llama3.2",
-        messages = [
-          {"role": "system", "content": "my super cool and awesome system prompt"},
-          {"role", "user", "content": expression},
-        ]
-      )
-
-      joint_commnd = response['message']['content'] 
-      #format how I need to send the message
+        print(f"Expression detected: {expression}")
+        response = await asyncio.to_thread(
+            ollama.chat,
+            model = "llama3.2",
+            messages = [
+                {"role": "system", "content": "my super cool and awesome system prompt"},
+                {"role", "user", "content": expression},
+            ]
+        )
+    
+        joint_commnd = response['message']['content'] 
+        print(f"Joint commands: {joint_command}")
+          #format how I need to send the message
 
 
 
