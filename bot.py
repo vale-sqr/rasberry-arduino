@@ -23,7 +23,7 @@ except:
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
-client = discord.CLIENT()
+client = discord.Client(intents=discord.Intents.default())
 
 # .env
 # DISCORD_TOKEN={your-bot-token}
