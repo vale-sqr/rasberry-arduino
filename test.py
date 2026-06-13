@@ -3,6 +3,7 @@ import tty
 import sys
 import termios
 import signal
+import time
 
 joint_commands = {
     'neck_nod': 
@@ -23,7 +24,7 @@ joint_commands = {
         },
     'neck_roll': 
         {
-            left': 0, 
+            'left': 0, 
             'left_soft': 45, 
             'neutral': 90, 
             'right_soft': 135, 
@@ -31,11 +32,11 @@ joint_commands = {
         },
     'shoulder_l_reach': 
         {
-            'up': 0, 
-            'forward_raised': 45, 
+            'up': 180, 
+            'forward_raised': 135, 
             'forward': 90, 
-            'forward_lowered': 135, 
-            'down': 180,
+            'forward_lowered': 45, 
+            'down': 0,
         },
     'shoulder_l_lift': 
         {
@@ -79,7 +80,11 @@ joint_commands = {
         }
 }
 
-arduino = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
+try:
+    arduino = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+except:
+    arduino = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
+
 
 
 # library joint: {move: degree}
@@ -109,8 +114,14 @@ try:
             except:
                 raise Exception(f"Unknown: {joint_name}: {move_name}")
             finally: 
-                message = ",".join(parts) + "\n"
-                arduino.write(message.encode())
+                for message in parts: 
+                    #send comands individually 
+                    #cause arduino doesn't have additional power source
+                    #and will break trying to move multiple servo's at once
+                    message += "\n"
+                    print(message)
+                    arduino.write(message.encode())
+                    time.sleep(0.5)
 
 
 finally:
