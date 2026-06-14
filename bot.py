@@ -11,49 +11,43 @@ import os
 import discord
 from dotenv import load_dotenv
 
-import ollama
+#import ollama
 import re
+import asyncio
 
 
-try:
-    arduino = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
-except:
-    arduino = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
+# try:
+#     arduino = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+# except:
+#     arduino = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
-client = discord.Client(intents=discord.Intents.default())
+intents = discord.Intents.default()
+intents.message_content = True
 
-# .env
-# DISCORD_TOKEN={your-bot-token}
-#pip install -U python-dotenv
+client = discord.Client(intents=intents)
 
 
 @client.event
 async def on_ready():
-    print(f'{client.user.name} has connected to Discord!')
+	print("we exist!")
+	print(f'{client.user.name} has connected to Discord!')
 
 @client.event
 async def on_message(message):
+	start = time.time()
+	print("message has been sent")
+	print(message.content)
+	matches = re.findall(r"(?:\"[^\"]*\"|'[^']*'|\*([^*]+)\*)", message.content)
+	print(matches)
+	end = time.time()
+	print(f"time passed {end - start}")
 	if message.author in ai_authors:
-		joint_commands = []
-		matches - re.findall(r'\*([^*]+)\*', message.content)
+		matches = re.findall(r"(?:\"[^\"]*\"|'[^']*'|\*([^*]+)\*)", message.content)
+		print(matches)
 		
-		for expression in matches:
-			print(f"Expression detected: {expression}")
-				response = await asyncio.to_thread(
-					ollama.chat,
-					model = "llama3.2",
-					messages = [
-						{"role": "system", "content": "my super cool and awesome system prompt"},
-						{"role", "user", "content": expression},
-				]
-			)
-
-			print(f"Joint command: {message.author}: {command}")
-			parse_command(message.author, response['message']['content'])
-
 
 def parse_command(ai_author, command):
 	try:		
@@ -75,7 +69,7 @@ def parse_command(ai_author, command):
 			except:
 				raise Exception(f"Unknown: {joint_name}: {move_name}")
 			finally: 
-				send_commands(author, commands)
+				send_commands(ai_author, commands)
 				
 	finally:
 		arduino.close()
@@ -174,9 +168,4 @@ joint_commands = {
 }
 
 
-
-
-
-      
-    
-    
+client.run(TOKEN)
