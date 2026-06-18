@@ -37,19 +37,22 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-	start = time.time()
 	print("message has been sent")
 	print(message.content)
 	matches = re.findall(r"(?:\"[^\"]*\"|'[^']*'|\*([^*]+)\*)", message.content)
 	print(matches)
-	end = time.time()
-	print(f"time passed {end - start}")
+	parse_command(message.author, matches)
 	if message.author in ai_authors:
 		matches = re.findall(r"(?:\"[^\"]*\"|'[^']*'|\*([^*]+)\*)", message.content)
 		print(matches)
 		
 
 def parse_command(ai_author, command):
+	if command in moves_library:
+		print(move_commands[command])
+		send_commands(ai_author, move_commands[command])
+		
+		
 	try:		
 		if command[1][-1] == ";":
 			command = command[:-1]
@@ -88,6 +91,33 @@ def send_commands(ai_author, commands):
 		arduino.write(message.encode())
 		time.sleep(0.5)
 
+
+moves_library = {
+	"reast":{
+		"elbow_l": 0,
+		"shoulder_l_reach": 0,
+		"shoulder_l_lift": 0,
+		"elbow_r": 0,
+		"shoulder_r_reach": 0,
+		"shoulder_r_lift": 0,
+	},
+	"shake_hand": {
+		"shoulder_l_reach": 90,
+		"shoulder_l_reach": 80,
+		"shoulder_l_reach": 100,
+		"shoulder_l_reach": 80,
+		"shoulder_l_reach": 100,
+		"shoulder_l_reach": 90,
+		"shoulder_l_reach": 0,
+	},
+	"wave_over": {
+		"shoulder_l_lift": 165,
+		"shoulder_l_lift": 135,
+		"shoulder_l_lift": 165,
+		"shoulder_l_lift": 135,
+		"shoulder_l_lift": 165,
+	},
+}
 
 
 ai_authors = ["names of all of the ai's talking"]
