@@ -21,6 +21,8 @@ import asyncio
 # except:
 #     arduino = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
 
+arduino = serial.Serial('/dev/cu.usbmodem11301', 9600, timeout=1)
+
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
@@ -47,36 +49,38 @@ async def on_message(message):
 		print(matches)
 		
 
-def parse_command(ai_author, command):
-	if command in moves_library:
-		print(move_commands[command])
-		send_commands(ai_author, move_commands[command])
+def parse_command(ai_author, commands):
+	for command in commands:
+		print(f"command in commands {command}")
+		if command in moves_library:
+			print(moves_library[command])
+			send_commands(ai_author, moves_library[command])
 		
 		
-	try:		
-		if command[1][-1] == ";":
-			command = command[:-1]
-		#command = [joint_name: move_name; joint_name: move_name]
-		commands = command.split("; ")
-		# commands = [joint_name: move_name, joint_name: move_name]
+	# try:		
+	# 	if command[1][-1] == ";":
+	# 		command = command[:-1]
+	# 	#command = [joint_name: move_name; joint_name: move_name]
+	# 	commands = command.split("; ")
+	# 	# commands = [joint_name: move_name, joint_name: move_name]
 				
-		for joint in commands:
-			# joint = [joint_name: move_name]
-			joint_name, move_name = joint.split(": ")
+	# 	for joint in commands:
+	# 		# joint = [joint_name: move_name]
+	# 		joint_name, move_name = joint.split(": ")
 			
-			try:
-				angle = joint_commands[joint_name][move_name]
-				joint = (f"{joint_name}: {angle}")
-				print(joint)
-				print(commands)
-			except:
-				raise Exception(f"Unknown: {joint_name}: {move_name}")
-			finally: 
-				send_commands(ai_author, commands)
+	# 		try:
+	# 			angle = joint_commands[joint_name][move_name]
+	# 			joint = (f"{joint_name}: {angle}")
+	# 			print(joint)
+	# 			print(commands)
+	# 		except:
+	# 			raise Exception(f"Unknown: {joint_name}: {move_name}")
+	# 		finally: 
+	# 			send_commands(ai_author, commands)
 				
-	finally:
-		arduino.close()
-		print("Disconnected.")
+	# finally:
+	# 	arduino.close()
+	# 	print("Disconnected.")
 
 
 def send_commands(ai_author, commands):
@@ -85,38 +89,47 @@ def send_commands(ai_author, commands):
 	#send comands individually 
 	#cause arduino doesn't have additional power source
 	#and will break trying to move multiple servo's at once
-	for message in commands: 
+	for msg in commands: 
+		message = str(msg)
+		message = message[1:-1]
 		message += "\n"
 		print(message)
 		arduino.write(message.encode())
-		time.sleep(0.5)
+		time.sleep(0.3)
 
 
 moves_library = {
-	"reast":{
-		"elbow_l": 0,
-		"shoulder_l_reach": 0,
-		"shoulder_l_lift": 0,
-		"elbow_r": 0,
-		"shoulder_r_reach": 0,
-		"shoulder_r_lift": 0,
-	},
-	"shake_hand": {
-		"shoulder_l_reach": 90,
-		"shoulder_l_reach": 80,
-		"shoulder_l_reach": 100,
-		"shoulder_l_reach": 80,
-		"shoulder_l_reach": 100,
-		"shoulder_l_reach": 90,
-		"shoulder_l_reach": 0,
-	},
-	"wave_over": {
-		"shoulder_l_lift": 165,
-		"shoulder_l_lift": 135,
-		"shoulder_l_lift": 165,
-		"shoulder_l_lift": 135,
-		"shoulder_l_lift": 165,
-	},
+	"rest":[
+		{"elbow_l": 0},
+		{"shoulder_l_reach": 0},
+		{"shoulder_l_lift": 0},
+		{"elbow_r": 0},
+		{"shoulder_r_reach": 0},
+		{"shoulder_r_lift": 0},
+	],
+	"flex_arm":[
+		{"shoulder_l_reach": 90},
+		{"elbow_l": 180},
+		{"elbow_l": 0},
+		{"elbow_l": 90},
+		{"elbow_l": 180},
+		{"elbow_l": 0},
+	],
+	"shake_hand": [
+		{"shoulder_l_reach": 90},
+		{"shoulder_l_reach": 80},
+		{"shoulder_l_reach": 100},
+		{"shoulder_l_reach": 80},
+		{"shoulder_l_reach": 100},
+		{"shoulder_l_reach": 90},
+	],
+	"wave_over": [
+		{"shoulder_l_lift": 165},
+		{"shoulder_l_lift": 135},
+		{"shoulder_l_lift": 165},
+		{"shoulder_l_lift": 135},
+		{"shoulder_l_lift": 165},
+	],
 }
 
 
